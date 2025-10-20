@@ -125,6 +125,16 @@ public class Bb implements Serializable {
         }
         this.reponse += question.toLowerCase(Locale.FRENCH) + "||";
         // La conversation contient l'historique des questions-réponses depuis le début.
+        if ("Analyseur de sentiments".equalsIgnoreCase(roleSysteme)) {
+            // Appel direct : la méthode mettra à jour this.reponse
+            analyserSentiment();
+        } else {
+            // Sinon : comportement normal (copie du texte)
+            this.reponse = "||" + roleSysteme.toUpperCase(Locale.FRENCH) + "\n" +
+                    question.toLowerCase(Locale.FRENCH) + "||";
+        }
+
+
         afficherConversation();
         return null;
     }
@@ -175,9 +185,42 @@ public class Bb implements Serializable {
                     are you tell them the average price of a meal.
                     """;
             this.listeRolesSysteme.add(new SelectItem(role, "Guide touristique"));
+
+            role = """
+                    You analyse the sentiment of the user it can be positive ,negative or neutral.
+                    """;
+            this.listeRolesSysteme.add(new SelectItem("Analyseur de sentiments", "Analyseur de sentiments"));
         }
 
         return this.listeRolesSysteme;
+    }
+
+
+
+
+
+    public String analyserSentiment() {
+        if (question == null || question.trim().isEmpty()) {
+            reponse = "Veuillez entrer une phrase.";
+            return null;
+        }
+
+        String lower = question.toLowerCase();
+        int score = 0;
+
+        if (lower.contains("bien") || lower.contains("excellent") || lower.contains("bravo"))
+            score++;
+        if (lower.contains("mal") || lower.contains("mauvais") || lower.contains("triste"))
+            score--;
+
+        if (score > 0)
+            reponse = " Sentiment positif détecté.";
+        else if (score < 0)
+            reponse = "Sentiment négatif détecté.";
+        else
+            reponse = " Sentiment neutre.";
+
+        return null;
     }
 
 }
